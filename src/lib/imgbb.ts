@@ -2,10 +2,10 @@ export async function uploadImage(
   file: File,
 ): Promise<{ permanent_url: string; direct_url: string }> {
   const formData = new FormData();
-  formData.append("file", file);
-  formData.append("api_key", "6a2ecc25590fb40b9a59714b68e705b0");
+  formData.append("image", file);
+  formData.append("key", "39a517c054a1ce550b8ab0a429c210e0"); // ImgBB API key
 
-  const response = await fetch("https://api.imghippo.com/v1/upload", {
+  const response = await fetch("https://api.imgbb.com/1/upload", {
     method: "POST",
     body: formData,
   });
@@ -18,7 +18,7 @@ export async function uploadImage(
 
   if (data.success) {
     return {
-      permanent_url: data.data.view_url || data.data.url,
+      permanent_url: data.data.display_url || data.data.url,
       direct_url: data.data.url,
     };
   }

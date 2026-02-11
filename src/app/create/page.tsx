@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { uploadImage } from "@/lib/imghippo";
+import { uploadImage } from "@/lib/imgbb";
 import {
   CardElement,
   CardData,
