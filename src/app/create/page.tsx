@@ -922,7 +922,7 @@ export default function CreatePage() {
                     left: "50%",
                     transform: "translateX(-50%)",
                     textAlign: "center",
-                    zIndex: 5,
+                    zIndex: 2000,
                     maxWidth: "88%",
                     width: "100%",
                     pointerEvents: "none",

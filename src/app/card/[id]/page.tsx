@@ -148,11 +148,11 @@ export default function CardViewPage({
           <motion.div
             style={{
               position: "absolute",
-              bottom: "6%",
+              bottom: "10%",
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
-              zIndex: 5,
+              zIndex: 2000,
               maxWidth: "88%",
               width: "100%",
             }}
