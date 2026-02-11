@@ -1,46 +1,41 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { ChevronRight, X } from "lucide-react";
 
 interface GuideStep {
   targetSelector: string;
-  position: "top" | "bottom" | "left" | "right";
   messageKey: string;
-  arrowDir: string;
+  icon: string;
 }
 
 const GUIDE_STEPS: GuideStep[] = [
   {
     targetSelector: ".sidebar-section-themes",
-    position: "right",
     messageKey: "guide.step1",
-    arrowDir: "←",
+    icon: "🎨",
   },
   {
     targetSelector: ".sidebar-section-elements",
-    position: "right",
     messageKey: "guide.step2",
-    arrowDir: "←",
+    icon: "✨",
   },
   {
     targetSelector: ".sidebar-section-text",
-    position: "right",
     messageKey: "guide.step3",
-    arrowDir: "←",
+    icon: "✍️",
   },
   {
     targetSelector: ".sidebar-section-upload",
-    position: "right",
     messageKey: "guide.step4",
-    arrowDir: "←",
+    icon: "📷",
   },
   {
     targetSelector: ".generate-section",
-    position: "top",
     messageKey: "guide.step5",
-    arrowDir: "↓",
+    icon: "🔗",
   },
 ];
 
@@ -48,47 +43,33 @@ export default function OverlayGuide() {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [show, setShow] = useState(false);
-  const [tooltipStyle, setTooltipStyle] = useState<React.CSSProperties>({});
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     const hasSeenGuide = localStorage.getItem("vday-guide-seen");
     if (!hasSeenGuide) {
-      const timer = setTimeout(() => setShow(true), 1500);
+      const timer = setTimeout(() => setShow(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  useEffect(() => {
+  const updateHighlight = useCallback(() => {
     if (!show) return;
     const step = GUIDE_STEPS[currentStep];
     if (!step) return;
-
     const el = document.querySelector(step.targetSelector);
     if (el) {
       const rect = el.getBoundingClientRect();
-      const style: React.CSSProperties = {};
-
-      switch (step.position) {
-        case "right":
-          style.top = rect.top + rect.height / 2 - 50;
-          style.left = rect.right + 20;
-          break;
-        case "top":
-          style.top = rect.top - 120;
-          style.left = rect.left + rect.width / 2 - 150;
-          break;
-        case "bottom":
-          style.top = rect.bottom + 20;
-          style.left = rect.left + rect.width / 2 - 150;
-          break;
-        case "left":
-          style.top = rect.top + rect.height / 2 - 50;
-          style.right = window.innerWidth - rect.left + 20;
-          break;
-      }
-      setTooltipStyle(style);
+      setHighlightRect(rect);
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [currentStep, show]);
+
+  useEffect(() => {
+    updateHighlight();
+    window.addEventListener("resize", updateHighlight);
+    return () => window.removeEventListener("resize", updateHighlight);
+  }, [updateHighlight]);
 
   const handleNext = () => {
     if (currentStep < GUIDE_STEPS.length - 1) {
@@ -112,37 +93,71 @@ export default function OverlayGuide() {
     <AnimatePresence>
       {show && (
         <>
+          {/* Dark overlay with cutout */}
           <motion.div
-            className="overlay-backdrop"
+            className="guide-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleFinish}
           />
+
+          {/* Highlight ring around target */}
+          {highlightRect && (
+            <motion.div
+              className="guide-highlight"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{
+                top: highlightRect.top - 6,
+                left: highlightRect.left - 6,
+                width: highlightRect.width + 12,
+                height: highlightRect.height + 12,
+              }}
+              layoutId="guide-highlight"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            />
+          )}
+
+          {/* Bottom tooltip card */}
           <motion.div
-            className="guide-tooltip"
-            style={tooltipStyle}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="guide-card"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ type: "spring", stiffness: 300, damping: 28 }}
             key={currentStep}
           >
-            <div className="guide-arrow">{step.arrowDir}</div>
-            <p>{t(step.messageKey)}</p>
-            <div className="guide-buttons">
-              <button
-                className="guide-btn guide-btn-skip"
-                onClick={handleFinish}
-              >
+            {/* Close button */}
+            <button className="guide-close" onClick={handleFinish}>
+              <X size={16} />
+            </button>
+
+            {/* Progress dots */}
+            <div className="guide-progress">
+              {GUIDE_STEPS.map((_, i) => (
+                <div
+                  key={i}
+                  className={`guide-dot ${i === currentStep ? "guide-dot-active" : ""} ${i < currentStep ? "guide-dot-done" : ""}`}
+                />
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="guide-content">
+              <span className="guide-icon">{step.icon}</span>
+              <p className="guide-message">{t(step.messageKey)}</p>
+            </div>
+
+            {/* Actions */}
+            <div className="guide-actions">
+              <button className="guide-skip-btn" onClick={handleFinish}>
                 {t("guide.skip")}
               </button>
-              <button className="guide-btn guide-btn-next" onClick={handleNext}>
+              <button className="guide-next-btn" onClick={handleNext}>
                 {isLast ? t("guide.finish") : t("guide.next")}
+                {!isLast && <ChevronRight size={16} />}
               </button>
-            </div>
-            <div style={{ fontSize: "0.75rem", marginTop: 8, opacity: 0.7 }}>
-              {currentStep + 1} / {GUIDE_STEPS.length}
             </div>
           </motion.div>
         </>
