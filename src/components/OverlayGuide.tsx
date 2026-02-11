@@ -1,9 +1,6 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { ChevronRight, X } from "lucide-react";
 
 interface GuideStep {
   targetSelector: string;
@@ -119,45 +116,126 @@ export default function OverlayGuide() {
             />
           )}
 
-          {/* Bottom tooltip card */}
+          {/* Text Pointer */}
           <motion.div
-            className="guide-card"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
+            className="guide-pointer"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
             key={currentStep}
+            style={{
+              position: "fixed",
+              // Responsive positioning logic would be better moved to a calculated state,
+              // but for now let's place it intelligently based on available space if possible.
+              // Mobile check:
+              top:
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? highlightRect
+                    ? highlightRect.bottom + 20
+                    : "50%"
+                  : highlightRect
+                    ? highlightRect.top + highlightRect.height / 2 - 20
+                    : "50%",
+              left:
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? "50%"
+                  : highlightRect
+                    ? highlightRect.right + 20
+                    : "50%",
+              transform:
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? "translateX(-50%)"
+                  : "none",
+              zIndex: 10000,
+              pointerEvents: "none", // Allow clicking through if needed, but we have overlay
+            }}
           >
-            {/* Close button */}
-            <button className="guide-close" onClick={handleFinish}>
-              <X size={16} />
-            </button>
-
-            {/* Progress dots */}
-            <div className="guide-progress">
-              {GUIDE_STEPS.map((_, i) => (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                flexDirection:
+                  typeof window !== "undefined" && window.innerWidth < 768
+                    ? "column"
+                    : "row",
+              }}
+            >
+              <span
+                style={{
+                  color: "white",
+                  fontSize: "1.5rem",
+                  fontWeight: "bold",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                  fontFamily: "monospace",
+                  transform:
+                    typeof window !== "undefined" && window.innerWidth < 768
+                      ? "rotate(90deg)"
+                      : "none",
+                  display: "inline-block",
+                }}
+              >
+                --- &gt;
+              </span>
+              <div
+                style={{
+                  background: "rgba(255, 255, 255, 0.95)",
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  maxWidth: "280px",
+                  pointerEvents: "auto",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                    color: "#333",
+                  }}
+                >
+                  {t(step.messageKey)}
+                </p>
                 <div
-                  key={i}
-                  className={`guide-dot ${i === currentStep ? "guide-dot-active" : ""} ${i < currentStep ? "guide-dot-done" : ""}`}
-                />
-              ))}
-            </div>
-
-            {/* Content */}
-            <div className="guide-content">
-              <span className="guide-icon">{step.icon}</span>
-              <p className="guide-message">{t(step.messageKey)}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="guide-actions">
-              <button className="guide-skip-btn" onClick={handleFinish}>
-                {t("guide.skip")}
-              </button>
-              <button className="guide-next-btn" onClick={handleNext}>
-                {isLast ? t("guide.finish") : t("guide.next")}
-                {!isLast && <ChevronRight size={16} />}
-              </button>
+                  style={{
+                    marginTop: "8px",
+                    display: "flex",
+                    gap: "10px",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <button
+                    onClick={handleFinish}
+                    style={{
+                      border: "none",
+                      background: "none",
+                      fontSize: "0.8rem",
+                      color: "#999",
+                      cursor: "pointer",
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    {t("guide.skip")}
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    style={{
+                      border: "none",
+                      background: "var(--primary)",
+                      color: "white",
+                      padding: "4px 12px",
+                      borderRadius: "12px",
+                      fontSize: "0.8rem",
+                      cursor: "pointer",
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    {isLast ? t("guide.finish") : t("guide.next")}
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.div>
         </>
