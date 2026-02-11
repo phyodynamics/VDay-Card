@@ -18,6 +18,19 @@ export default function CardViewPage({
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // 500px is the "base" standard size (approx editor size)
+      // If screen is smaller (e.g. 350px), we scale down: 350/500 = 0.7
+      const wrapperWidth = Math.min(window.innerWidth - 32, 500); // 32px padding
+      setScale(wrapperWidth / 500);
+    };
+    handleResize(); // Init
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getFontCss = (fontId?: string) =>
     FONT_OPTIONS.find((f) => f.id === fontId)?.css || "var(--font-script)";
@@ -76,21 +89,6 @@ export default function CardViewPage({
     cardData.bgPattern && cardData.bgPattern !== "none"
       ? `bg-pattern-${cardData.bgPattern}`
       : "";
-
-  // Scale logic for mobile matching
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    const handleResize = () => {
-      // 500px is the "base" standard size (approx editor size)
-      // If screen is smaller (e.g. 350px), we scale down: 350/500 = 0.7
-      const wrapperWidth = Math.min(window.innerWidth - 32, 500); // 32px padding
-      setScale(wrapperWidth / 500);
-    };
-    handleResize(); // Init
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   return (
     <div className="card-viewer">
