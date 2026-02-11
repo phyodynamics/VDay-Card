@@ -302,29 +302,80 @@ export default function CreatePage() {
   // Let's keep it simple: We won't perfect drag history right now to avoid complex refactors.
   // We will focus on buttons/discrete actions.
 
-  // Touch drag
+  // Touch drag & scale
+  const [initialPinchDistance, setInitialPinchDistance] = useState<
+    number | null
+  >(null);
+  const [initialScale, setInitialScale] = useState<number>(1);
+
   const handleTouchStart = useCallback(
     (e: React.TouchEvent, elementId: string) => {
+      e.stopPropagation(); // vital for preventing canvas scroll?
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const touch = e.touches[0];
       const rect = canvas.getBoundingClientRect();
       const element = elements.find((el) => el.id === elementId);
       if (!element) return;
+
+      setSelectedElement(elementId);
+
+      // Multi-touch for pinch
+      if (e.touches.length === 2) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const dist = Math.hypot(
+          touch1.clientX - touch2.clientX,
+          touch1.clientY - touch2.clientY,
+        );
+        setInitialPinchDistance(dist);
+        setInitialScale(element.scale || 1);
+        return; // Don't drag if pinching
+      }
+
+      // Single touch drag
+      const touch = e.touches[0];
       setDragOffset({
         x: touch.clientX - rect.left - (element.x / 100) * rect.width,
         y: touch.clientY - rect.top - (element.y / 100) * rect.height,
       });
       setDragging(elementId);
-      setSelectedElement(elementId);
     },
     [elements],
   );
 
   useEffect(() => {
-    if (!dragging) return;
+    // We attach listeners to window or canvas to handle moves outside element
+    // But for pinch, we usually want it on the element or canvas container.
+    // Let's attach to window to catch everything.
+
     const move = (e: TouchEvent) => {
-      if (e.cancelable) e.preventDefault();
+      // Prevent scrolling if we are interacting
+      if (dragging || initialPinchDistance) {
+        if (e.cancelable) e.preventDefault();
+      }
+
+      if (initialPinchDistance && selectedElement) {
+        // Handle pinch
+        if (e.touches.length === 2) {
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          const dist = Math.hypot(
+            touch1.clientX - touch2.clientX,
+            touch1.clientY - touch2.clientY,
+          );
+          const scaleFactor = dist / initialPinchDistance;
+          const newScale = Math.max(
+            0.5,
+            Math.min(3, initialScale * scaleFactor),
+          );
+
+          updateElement(selectedElement, { scale: newScale });
+        }
+        return;
+      }
+
+      if (!dragging) return;
+
       const canvas = canvasRef.current;
       if (!canvas) return;
       const touch = e.touches[0];
@@ -336,14 +387,28 @@ export default function CreatePage() {
         y: Math.max(0, Math.min(90, y)),
       });
     };
-    const end = () => setDragging(null);
+
+    const end = (e: TouchEvent) => {
+      if (e.touches.length === 0) {
+        setDragging(null);
+        setInitialPinchDistance(null);
+      }
+    };
+
     window.addEventListener("touchmove", move, { passive: false });
     window.addEventListener("touchend", end);
     return () => {
       window.removeEventListener("touchmove", move);
       window.removeEventListener("touchend", end);
     };
-  }, [dragging, dragOffset, updateElement]);
+  }, [
+    dragging,
+    dragOffset,
+    updateElement,
+    initialPinchDistance,
+    initialScale,
+    selectedElement,
+  ]);
 
   // Upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1146,6 +1211,21 @@ export default function CreatePage() {
                       title="Duplicate"
                     >
                       <Copy size={12} />
+                    </button>
+                    <button
+                      className="element-control-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Simple 45 deg rotation increment or maybe initiate rotate mode?
+                        // User asked for "rotating by using the rotate button".
+                        // Let's just add 45 degrees.
+                        updateElementWithHistory(el.id, {
+                          rotation: (el.rotation || 0) + 45,
+                        });
+                      }}
+                      title="Rotate"
+                    >
+                      <RotateCcw size={12} />
                     </button>
                     <button
                       className="element-control-btn element-control-delete"
