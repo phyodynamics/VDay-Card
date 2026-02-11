@@ -586,6 +586,314 @@ export default function CreatePage() {
             </button>
           </div>
 
+          {/* == SELECTED ELEMENT EDITOR == */}
+          <AnimatePresence>
+            {selectedEl && (
+              <motion.div
+                className="element-editor"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  marginBottom: "16px",
+                  borderBottom: "1px solid var(--glass-border)",
+                  paddingBottom: "16px",
+                }}
+              >
+                <div className="element-editor-header">
+                  <h4>
+                    Edit{" "}
+                    {selectedEl.type === "sticker"
+                      ? "Sticker"
+                      : selectedEl.type === "text"
+                        ? "Text"
+                        : "Image"}
+                  </h4>
+                  <div className="element-quick-actions">
+                    <button
+                      onClick={() => duplicateElement(selectedEl.id)}
+                      title="Duplicate"
+                    >
+                      <Copy size={14} />
+                    </button>
+                    <button
+                      onClick={() => bringToFront(selectedEl.id)}
+                      title="Bring to front"
+                    >
+                      <ChevronUp size={14} />
+                    </button>
+                    <button
+                      onClick={() => sendToBack(selectedEl.id)}
+                      title="Send to back"
+                    >
+                      <ChevronDown size={14} />
+                    </button>
+                    <button
+                      onClick={() => deleteElement(selectedEl.id)}
+                      title="Delete"
+                      className="delete-action"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Text-specific controls */}
+                {selectedEl.type === "text" && (
+                  <>
+                    <div className="editor-field">
+                      <label>Content</label>
+                      <input
+                        type="text"
+                        value={selectedEl.content}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            content: e.target.value,
+                          })
+                        }
+                        className="editor-input"
+                      />
+                    </div>
+                    <div className="editor-field">
+                      <label>Font</label>
+                      <select
+                        value={selectedEl.fontFamily || "dancing"}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            fontFamily: e.target.value,
+                          })
+                        }
+                        className="editor-select"
+                      >
+                        {FONT_OPTIONS.map((f) => (
+                          <option key={f.id} value={f.id}>
+                            {f.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="editor-row">
+                      <div className="editor-field" style={{ flex: 1 }}>
+                        <label>Size ({selectedEl.fontSize || 22}px)</label>
+                        <input
+                          type="range"
+                          min="10"
+                          max="72"
+                          value={selectedEl.fontSize || 22}
+                          onChange={(e) =>
+                            updateElement(selectedEl.id, {
+                              fontSize: parseInt(e.target.value),
+                            })
+                          }
+                          className="editor-range"
+                        />
+                      </div>
+                      <div className="editor-field" style={{ width: 50 }}>
+                        <label>Color</label>
+                        <input
+                          type="color"
+                          value={selectedEl.fontColor || "#e8477e"}
+                          onChange={(e) =>
+                            updateElement(selectedEl.id, {
+                              fontColor: e.target.value,
+                            })
+                          }
+                          className="mini-color"
+                        />
+                      </div>
+                    </div>
+                    {/* Text styling buttons */}
+                    <div className="text-style-row">
+                      <button
+                        className={`style-btn ${selectedEl.fontWeight === 700 ? "style-btn-active" : ""}`}
+                        onClick={() =>
+                          updateElement(selectedEl.id, {
+                            fontWeight:
+                              selectedEl.fontWeight === 700 ? 400 : 700,
+                          })
+                        }
+                      >
+                        <Bold size={14} />
+                      </button>
+                      <button
+                        className={`style-btn ${selectedEl.fontStyle === "italic" ? "style-btn-active" : ""}`}
+                        onClick={() =>
+                          updateElement(selectedEl.id, {
+                            fontStyle:
+                              selectedEl.fontStyle === "italic"
+                                ? "normal"
+                                : "italic",
+                          })
+                        }
+                      >
+                        <Italic size={14} />
+                      </button>
+                      <span className="style-divider" />
+                      <button
+                        className={`style-btn ${selectedEl.textAlign === "left" ? "style-btn-active" : ""}`}
+                        onClick={() =>
+                          updateElement(selectedEl.id, { textAlign: "left" })
+                        }
+                      >
+                        <AlignLeft size={14} />
+                      </button>
+                      <button
+                        className={`style-btn ${(selectedEl.textAlign || "center") === "center" ? "style-btn-active" : ""}`}
+                        onClick={() =>
+                          updateElement(selectedEl.id, { textAlign: "center" })
+                        }
+                      >
+                        <AlignCenter size={14} />
+                      </button>
+                      <button
+                        className={`style-btn ${selectedEl.textAlign === "right" ? "style-btn-active" : ""}`}
+                        onClick={() =>
+                          updateElement(selectedEl.id, { textAlign: "right" })
+                        }
+                      >
+                        <AlignRight size={14} />
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Sticker controls */}
+                {selectedEl.type === "sticker" && (
+                  <>
+                    <div className="editor-row">
+                      <div className="editor-field" style={{ flex: 1 }}>
+                        <label>Size ({selectedEl.fontSize || 48}px)</label>
+                        <input
+                          type="range"
+                          min="20"
+                          max="140"
+                          value={selectedEl.fontSize || 48}
+                          onChange={(e) =>
+                            updateElement(selectedEl.id, {
+                              fontSize: parseInt(e.target.value),
+                            })
+                          }
+                          className="editor-range"
+                        />
+                      </div>
+                      <div className="editor-field" style={{ width: 50 }}>
+                        <label>Color</label>
+                        <input
+                          type="color"
+                          value={selectedEl.stickerColor || "#e8477e"}
+                          onChange={(e) =>
+                            updateElement(selectedEl.id, {
+                              stickerColor: e.target.value,
+                            })
+                          }
+                          className="mini-color"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Image controls */}
+                {selectedEl.type === "image" && (
+                  <div className="editor-row">
+                    <div className="editor-field" style={{ flex: 1 }}>
+                      <label>Size ({selectedEl.width || 120}px)</label>
+                      <input
+                        type="range"
+                        min="50"
+                        max="300"
+                        value={selectedEl.width || 120}
+                        onChange={(e) =>
+                          updateElement(selectedEl.id, {
+                            width: parseInt(e.target.value),
+                          })
+                        }
+                        className="editor-range"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Image controls */}
+                {selectedEl.type === "image" && (
+                  <div className="editor-row">
+                    <div className="editor-field" style={{ flex: 1 }}>
+                      <label>Shape</label>
+                      <div
+                        className="shape-options"
+                        style={{ display: "flex", gap: "8px" }}
+                      >
+                        {[
+                          { id: "rect", label: "Rect" },
+                          { id: "circle", label: "Circle" },
+                          { id: "pill", label: "Pill" },
+                        ].map((shape) => (
+                          <button
+                            key={shape.id}
+                            className={`style-btn ${(selectedEl.shape || "rect") === shape.id ? "style-btn-active" : ""}`}
+                            style={{
+                              width: "auto",
+                              padding: "0 12px",
+                              borderRadius: "6px",
+                              fontSize: "0.8rem",
+                            }}
+                            onClick={() =>
+                              updateElement(selectedEl.id, { shape: shape.id })
+                            }
+                          >
+                            {shape.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Common controls for ALL elements */}
+                <div className="editor-row">
+                  <div className="editor-field" style={{ flex: 1 }}>
+                    <label>
+                      <RotateCw size={12} /> Rotation (
+                      {selectedEl.rotation || 0}°)
+                    </label>
+                    <input
+                      type="range"
+                      min="-180"
+                      max="180"
+                      value={selectedEl.rotation || 0}
+                      onChange={(e) =>
+                        updateElement(selectedEl.id, {
+                          rotation: parseInt(e.target.value),
+                        })
+                      }
+                      className="editor-range"
+                    />
+                  </div>
+                </div>
+                <div className="editor-row">
+                  <div className="editor-field" style={{ flex: 1 }}>
+                    <label>
+                      Opacity ({Math.round((selectedEl.opacity ?? 1) * 100)}%)
+                    </label>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      value={Math.round((selectedEl.opacity ?? 1) * 100)}
+                      onChange={(e) =>
+                        updateElement(selectedEl.id, {
+                          opacity: parseInt(e.target.value) / 100,
+                        })
+                      }
+                      className="editor-range"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* == STICKERS TAB == */}
           {activeTab === "stickers" && (
             <div className="sidebar-tab-content">
@@ -889,307 +1197,6 @@ export default function CreatePage() {
           )}
 
           {/* == SELECTED ELEMENT EDITOR == */}
-          <AnimatePresence>
-            {selectedEl && (
-              <motion.div
-                className="element-editor"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="element-editor-header">
-                  <h4>
-                    Edit{" "}
-                    {selectedEl.type === "sticker"
-                      ? "Sticker"
-                      : selectedEl.type === "text"
-                        ? "Text"
-                        : "Image"}
-                  </h4>
-                  <div className="element-quick-actions">
-                    <button
-                      onClick={() => duplicateElement(selectedEl.id)}
-                      title="Duplicate"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button
-                      onClick={() => bringToFront(selectedEl.id)}
-                      title="Bring to front"
-                    >
-                      <ChevronUp size={14} />
-                    </button>
-                    <button
-                      onClick={() => sendToBack(selectedEl.id)}
-                      title="Send to back"
-                    >
-                      <ChevronDown size={14} />
-                    </button>
-                    <button
-                      onClick={() => deleteElement(selectedEl.id)}
-                      title="Delete"
-                      className="delete-action"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Text-specific controls */}
-                {selectedEl.type === "text" && (
-                  <>
-                    <div className="editor-field">
-                      <label>Content</label>
-                      <input
-                        type="text"
-                        value={selectedEl.content}
-                        onChange={(e) =>
-                          updateElement(selectedEl.id, {
-                            content: e.target.value,
-                          })
-                        }
-                        className="editor-input"
-                      />
-                    </div>
-                    <div className="editor-field">
-                      <label>Font</label>
-                      <select
-                        value={selectedEl.fontFamily || "dancing"}
-                        onChange={(e) =>
-                          updateElement(selectedEl.id, {
-                            fontFamily: e.target.value,
-                          })
-                        }
-                        className="editor-select"
-                      >
-                        {FONT_OPTIONS.map((f) => (
-                          <option key={f.id} value={f.id}>
-                            {f.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="editor-row">
-                      <div className="editor-field" style={{ flex: 1 }}>
-                        <label>Size ({selectedEl.fontSize || 22}px)</label>
-                        <input
-                          type="range"
-                          min="10"
-                          max="72"
-                          value={selectedEl.fontSize || 22}
-                          onChange={(e) =>
-                            updateElement(selectedEl.id, {
-                              fontSize: parseInt(e.target.value),
-                            })
-                          }
-                          className="editor-range"
-                        />
-                      </div>
-                      <div className="editor-field" style={{ width: 50 }}>
-                        <label>Color</label>
-                        <input
-                          type="color"
-                          value={selectedEl.fontColor || "#e8477e"}
-                          onChange={(e) =>
-                            updateElement(selectedEl.id, {
-                              fontColor: e.target.value,
-                            })
-                          }
-                          className="mini-color"
-                        />
-                      </div>
-                    </div>
-                    {/* Text styling buttons */}
-                    <div className="text-style-row">
-                      <button
-                        className={`style-btn ${selectedEl.fontWeight === 700 ? "style-btn-active" : ""}`}
-                        onClick={() =>
-                          updateElement(selectedEl.id, {
-                            fontWeight:
-                              selectedEl.fontWeight === 700 ? 400 : 700,
-                          })
-                        }
-                      >
-                        <Bold size={14} />
-                      </button>
-                      <button
-                        className={`style-btn ${selectedEl.fontStyle === "italic" ? "style-btn-active" : ""}`}
-                        onClick={() =>
-                          updateElement(selectedEl.id, {
-                            fontStyle:
-                              selectedEl.fontStyle === "italic"
-                                ? "normal"
-                                : "italic",
-                          })
-                        }
-                      >
-                        <Italic size={14} />
-                      </button>
-                      <span className="style-divider" />
-                      <button
-                        className={`style-btn ${selectedEl.textAlign === "left" ? "style-btn-active" : ""}`}
-                        onClick={() =>
-                          updateElement(selectedEl.id, { textAlign: "left" })
-                        }
-                      >
-                        <AlignLeft size={14} />
-                      </button>
-                      <button
-                        className={`style-btn ${(selectedEl.textAlign || "center") === "center" ? "style-btn-active" : ""}`}
-                        onClick={() =>
-                          updateElement(selectedEl.id, { textAlign: "center" })
-                        }
-                      >
-                        <AlignCenter size={14} />
-                      </button>
-                      <button
-                        className={`style-btn ${selectedEl.textAlign === "right" ? "style-btn-active" : ""}`}
-                        onClick={() =>
-                          updateElement(selectedEl.id, { textAlign: "right" })
-                        }
-                      >
-                        <AlignRight size={14} />
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* Sticker controls */}
-                {selectedEl.type === "sticker" && (
-                  <>
-                    <div className="editor-row">
-                      <div className="editor-field" style={{ flex: 1 }}>
-                        <label>Size ({selectedEl.fontSize || 48}px)</label>
-                        <input
-                          type="range"
-                          min="20"
-                          max="140"
-                          value={selectedEl.fontSize || 48}
-                          onChange={(e) =>
-                            updateElement(selectedEl.id, {
-                              fontSize: parseInt(e.target.value),
-                            })
-                          }
-                          className="editor-range"
-                        />
-                      </div>
-                      <div className="editor-field" style={{ width: 50 }}>
-                        <label>Color</label>
-                        <input
-                          type="color"
-                          value={selectedEl.stickerColor || "#e8477e"}
-                          onChange={(e) =>
-                            updateElement(selectedEl.id, {
-                              stickerColor: e.target.value,
-                            })
-                          }
-                          className="mini-color"
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Image controls */}
-                {selectedEl.type === "image" && (
-                  <div className="editor-row">
-                    <div className="editor-field" style={{ flex: 1 }}>
-                      <label>Size ({selectedEl.width || 120}px)</label>
-                      <input
-                        type="range"
-                        min="50"
-                        max="300"
-                        value={selectedEl.width || 120}
-                        onChange={(e) =>
-                          updateElement(selectedEl.id, {
-                            width: parseInt(e.target.value),
-                          })
-                        }
-                        className="editor-range"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Image controls */}
-                {selectedEl.type === "image" && (
-                  <div className="editor-row">
-                    <div className="editor-field" style={{ flex: 1 }}>
-                      <label>Shape</label>
-                      <div
-                        className="shape-options"
-                        style={{ display: "flex", gap: "8px" }}
-                      >
-                        {[
-                          { id: "rect", label: "Rect" },
-                          { id: "circle", label: "Circle" },
-                          { id: "pill", label: "Pill" },
-                        ].map((shape) => (
-                          <button
-                            key={shape.id}
-                            className={`style-btn ${(selectedEl.shape || "rect") === shape.id ? "style-btn-active" : ""}`}
-                            style={{
-                              width: "auto",
-                              padding: "0 12px",
-                              borderRadius: "6px",
-                              fontSize: "0.8rem",
-                            }}
-                            onClick={() =>
-                              updateElement(selectedEl.id, { shape: shape.id })
-                            }
-                          >
-                            {shape.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Common controls for ALL elements */}
-                <div className="editor-row">
-                  <div className="editor-field" style={{ flex: 1 }}>
-                    <label>
-                      <RotateCw size={12} /> Rotation (
-                      {selectedEl.rotation || 0}°)
-                    </label>
-                    <input
-                      type="range"
-                      min="-180"
-                      max="180"
-                      value={selectedEl.rotation || 0}
-                      onChange={(e) =>
-                        updateElement(selectedEl.id, {
-                          rotation: parseInt(e.target.value),
-                        })
-                      }
-                      className="editor-range"
-                    />
-                  </div>
-                </div>
-                <div className="editor-row">
-                  <div className="editor-field" style={{ flex: 1 }}>
-                    <label>
-                      Opacity ({Math.round((selectedEl.opacity ?? 1) * 100)}%)
-                    </label>
-                    <input
-                      type="range"
-                      min="10"
-                      max="100"
-                      value={Math.round((selectedEl.opacity ?? 1) * 100)}
-                      onChange={(e) =>
-                        updateElement(selectedEl.id, {
-                          opacity: parseInt(e.target.value) / 100,
-                        })
-                      }
-                      className="editor-range"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.aside>
 
         {/* Canvas & Share */}
