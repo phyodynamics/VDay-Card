@@ -292,15 +292,17 @@ export default function CreatePage() {
   // Let's keep it simple: We won't perfect drag history right now to avoid complex refactors.
   // We will focus on buttons/discrete actions.
 
-  // Touch drag & scale
+  // Touch drag & scale & rotate
   const [initialPinchDistance, setInitialPinchDistance] = useState<
     number | null
   >(null);
   const [initialScale, setInitialScale] = useState<number>(1);
+  const [initialRotation, setInitialRotation] = useState<number>(0);
+  const [initialAngle, setInitialAngle] = useState<number | null>(null);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent, elementId: string) => {
-      e.stopPropagation(); // vital for preventing canvas scroll?
+      e.stopPropagation();
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -309,17 +311,29 @@ export default function CreatePage() {
 
       setSelectedElement(elementId);
 
-      // Multi-touch for pinch
+      // Multi-touch for pinch/rotate
       if (e.touches.length === 2) {
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
+
+        // Distance
         const dist = Math.hypot(
           touch1.clientX - touch2.clientX,
           touch1.clientY - touch2.clientY,
         );
         setInitialPinchDistance(dist);
         setInitialScale(element.scale || 1);
-        return; // Don't drag if pinching
+
+        // Angle
+        const angle =
+          Math.atan2(
+            touch2.clientY - touch1.clientY,
+            touch2.clientX - touch1.clientX,
+          ) *
+          (180 / Math.PI);
+        setInitialAngle(angle);
+        setInitialRotation(element.rotation || 0);
+        return;
       }
 
       // Single touch drag
@@ -334,32 +348,47 @@ export default function CreatePage() {
   );
 
   useEffect(() => {
-    // We attach listeners to window or canvas to handle moves outside element
-    // But for pinch, we usually want it on the element or canvas container.
-    // Let's attach to window to catch everything.
-
     const move = (e: TouchEvent) => {
       // Prevent scrolling if we are interacting
       if (dragging || initialPinchDistance) {
         if (e.cancelable) e.preventDefault();
       }
 
-      if (initialPinchDistance && selectedElement) {
-        // Handle pinch
+      if (initialPinchDistance && selectedElement && initialAngle !== null) {
+        // Handle pinch & rotate
         if (e.touches.length === 2) {
           const touch1 = e.touches[0];
           const touch2 = e.touches[1];
+
+          // Scale
           const dist = Math.hypot(
             touch1.clientX - touch2.clientX,
             touch1.clientY - touch2.clientY,
           );
           const scaleFactor = dist / initialPinchDistance;
           const newScale = Math.max(
-            0.5,
-            Math.min(3, initialScale * scaleFactor),
+            0.2,
+            Math.min(5, initialScale * scaleFactor),
           );
 
-          updateElement(selectedElement, { scale: newScale });
+          // Rotation
+          const currentAngle =
+            Math.atan2(
+              touch2.clientY - touch1.clientY,
+              touch2.clientX - touch1.clientX,
+            ) *
+            (180 / Math.PI);
+
+          const angleDiff = currentAngle - initialAngle;
+          const newRotation = (initialRotation + angleDiff) % 360;
+
+          // Batch update if possible, or just update state
+          // Since updateElement updates state, calling it once is better.
+          // We need to support updating both properties.
+          updateElement(selectedElement, {
+            scale: newScale,
+            rotation: newRotation,
+          });
         }
         return;
       }
@@ -379,9 +408,12 @@ export default function CreatePage() {
     };
 
     const end = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        setInitialPinchDistance(null);
+        setInitialAngle(null);
+      }
       if (e.touches.length === 0) {
         setDragging(null);
-        setInitialPinchDistance(null);
       }
     };
 
@@ -397,6 +429,8 @@ export default function CreatePage() {
     updateElement,
     initialPinchDistance,
     initialScale,
+    initialAngle,
+    initialRotation,
     selectedElement,
   ]);
 
