@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useLanguage } from "@/i18n/LanguageContext";
 import StickerRenderer from "@/components/ValentineStickers";
 
@@ -113,13 +114,20 @@ export default function CreatorPage() {
           style={{ perspective: 1000 }}
         >
           <div className="creator-photo-wrapper">
-            <motion.img
-              src="https://i.imghippo.com/files/owpj7146YU.jpeg"
-              alt="Phyo Zin Ko"
+            <motion.div
               className="creator-photo"
               whileHover={{ scale: 1.08, rotate: 3 }}
               transition={{ type: "spring", stiffness: 200 }}
-            />
+              style={{ position: "relative", width: "100%", height: "100%" }}
+            >
+              <Image
+                src="https://i.imghippo.com/files/owpj7146YU.jpeg"
+                alt="Phyo Zin Ko"
+                fill
+                style={{ objectFit: "cover" }}
+                priority
+              />
+            </motion.div>
           </div>
 
           <h2 className="creator-name">Phyo Zin Ko</h2>

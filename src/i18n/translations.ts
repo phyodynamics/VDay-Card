@@ -88,6 +88,12 @@ export const translations = {
     fontSize: { my: "စာလုံးအရွယ်အစား", en: "Font Size" },
     fontColor: { my: "စာလုံးအရောင်", en: "Font Color" },
     canvas: { my: "Card မျက်နှာပြင်", en: "Card Canvas" },
+    rotation: { my: "လှည့်မယ်", en: "Rotation" },
+    resetTransforms: {
+      my: "မူလအတိုင်း ပြန်ထားမယ်",
+      en: "Reset All Transforms",
+    },
+    opacity: { my: "ကြည်လင်မှု", en: "Opacity" },
   },
   card: {
     madeWith: { my: "ဖန်တီးသူ -", en: "Made with" },

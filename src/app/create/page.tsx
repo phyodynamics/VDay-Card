@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
@@ -539,7 +540,7 @@ export default function CreatePage() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Tab Switcher */}
-          <div className="sidebar-tabs">
+          <div className="sidebar-tabs sidebar-section-tabs">
             {sidebarTabs.map((tab) => (
               <button
                 key={tab.id}
@@ -853,10 +854,43 @@ export default function CreatePage() {
                 {/* Common controls for ALL elements */}
                 <div className="editor-row">
                   <div className="editor-field" style={{ flex: 1 }}>
-                    <label>
-                      <RotateCw size={12} /> Rotation (
-                      {selectedEl.rotation || 0}°)
-                    </label>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      <label style={{ marginBottom: 0 }}>
+                        <RotateCw size={12} /> {t("editor.rotation")} (
+                        {selectedEl.rotation || 0}°)
+                      </label>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button
+                          className="mini-action-btn"
+                          onClick={() =>
+                            updateElement(selectedEl.id, {
+                              rotation: ((selectedEl.rotation || 0) - 90) % 360,
+                            })
+                          }
+                          title="Rotate 90° Left"
+                        >
+                          <RotateCcw size={12} />
+                        </button>
+                        <button
+                          className="mini-action-btn"
+                          onClick={() =>
+                            updateElement(selectedEl.id, {
+                              rotation: ((selectedEl.rotation || 0) + 90) % 360,
+                            })
+                          }
+                          title="Rotate 90° Right"
+                        >
+                          <RotateCw size={12} />
+                        </button>
+                      </div>
+                    </div>
                     <input
                       type="range"
                       min="-180"
@@ -871,10 +905,12 @@ export default function CreatePage() {
                     />
                   </div>
                 </div>
+
                 <div className="editor-row">
                   <div className="editor-field" style={{ flex: 1 }}>
                     <label>
-                      Opacity ({Math.round((selectedEl.opacity ?? 1) * 100)}%)
+                      {t("editor.opacity")} (
+                      {Math.round((selectedEl.opacity ?? 1) * 100)}%)
                     </label>
                     <input
                       type="range"
@@ -890,13 +926,38 @@ export default function CreatePage() {
                     />
                   </div>
                 </div>
+
+                <div className="editor-row" style={{ marginTop: "12px" }}>
+                  <button
+                    className="style-btn"
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      fontSize: "0.75rem",
+                      background: "rgba(255, 255, 255, 0.05)",
+                      border: "1px solid var(--glass-border)",
+                      opacity: 0.8,
+                    }}
+                    onClick={() =>
+                      updateElement(selectedEl.id, {
+                        rotation: 0,
+                        scale: 1,
+                        opacity: 1,
+                        fontSize: selectedEl.type === "text" ? 22 : 48,
+                        width: selectedEl.type === "image" ? 120 : undefined,
+                      })
+                    }
+                  >
+                    {t("editor.resetTransforms")}
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* == STICKERS TAB == */}
           {activeTab === "stickers" && (
-            <div className="sidebar-tab-content">
+            <div className="sidebar-tab-content sidebar-section-elements">
               {/* Hearts */}
               <div className="sidebar-accordion">
                 <button
@@ -1024,7 +1085,7 @@ export default function CreatePage() {
 
           {/* == TEXT TAB == */}
           {activeTab === "text" && (
-            <div className="sidebar-tab-content">
+            <div className="sidebar-tab-content sidebar-section-text">
               {/* Main Message */}
               <div className="sidebar-section">
                 <h3>
@@ -1109,7 +1170,7 @@ export default function CreatePage() {
 
           {/* == UPLOAD TAB == */}
           {activeTab === "upload" && (
-            <div className="sidebar-tab-content">
+            <div className="sidebar-tab-content sidebar-section-upload">
               <div className="sidebar-section">
                 <h3>
                   <ImagePlus size={14} className="section-icon" />{" "}
@@ -1144,8 +1205,17 @@ export default function CreatePage() {
                 {uploadedImages.length > 0 && (
                   <div className="upload-preview">
                     {uploadedImages.map((url, i) => (
-                      <div key={i} className="upload-thumb">
-                        <img src={url} alt={`Upload ${i + 1}`} />
+                      <div
+                        key={i}
+                        className="upload-thumb"
+                        style={{ position: "relative", overflow: "hidden" }}
+                      >
+                        <Image
+                          src={url}
+                          alt={`Upload ${i + 1}`}
+                          fill
+                          style={{ objectFit: "cover" }}
+                        />
                         <button
                           className="remove-btn"
                           onClick={() => removeImage(i)}
@@ -1162,7 +1232,7 @@ export default function CreatePage() {
 
           {/* == STYLE TAB (Themes + Patterns) == */}
           {activeTab === "style" && (
-            <div className="sidebar-tab-content">
+            <div className="sidebar-tab-content sidebar-section-themes">
               <div className="sidebar-section">
                 <h3>{t("editor.themes")}</h3>
                 <div className="theme-grid">
@@ -1303,20 +1373,26 @@ export default function CreatePage() {
                   )}
 
                   {el.type === "image" && (
-                    <div className="card-image-element">
-                      <img
+                    <div
+                      className="card-image-element"
+                      style={{
+                        position: "relative",
+                        overflow: "hidden",
+                        width: el.width || 120,
+                        height: el.width || 120,
+                      }}
+                    >
+                      <Image
                         src={el.content}
                         alt="Custom"
+                        fill
                         style={{
-                          maxWidth: el.width || 120,
-                          width: "100%",
                           borderRadius:
                             el.shape === "circle"
                               ? "50%"
                               : el.shape === "pill"
                                 ? "999px"
                                 : "8px",
-                          aspectRatio: el.shape === "circle" ? "1/1" : "auto",
                           objectFit: "cover",
                         }}
                       />
