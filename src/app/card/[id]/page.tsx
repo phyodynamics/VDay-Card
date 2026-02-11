@@ -77,13 +77,55 @@ export default function CardViewPage({
       ? `bg-pattern-${cardData.bgPattern}`
       : "";
 
+  // Scale logic for mobile matching
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // 500px is the "base" standard size (approx editor size)
+      // If screen is smaller (e.g. 350px), we scale down: 350/500 = 0.7
+      const wrapperWidth = Math.min(window.innerWidth - 32, 500); // 32px padding
+      setScale(wrapperWidth / 500);
+    };
+    handleResize(); // Init
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="card-viewer">
+      {/* 
+        Scaling Wrapper: 
+        We use a container that is technically 500x500 (or whatever the base design size is),
+        and then scale it down using CSS transform to fit the screen. 
+        This ensures 1:1 visual fidelity with the editor.
+      */}
+      <div 
+        className="card-scaler-container"
+        style={{
+          width: 500 * scale,
+          height: 500 * scale, // Preserving aspect ratio
+          position: 'relative',
+          margin: '0 auto',
+        }}
+      >
       <motion.div
         className={`card-viewer-container ${themeClass} ${patternClass}`}
         initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
         animate={{ opacity: 1, scale: 1, rotateY: 0 }}
         transition={{ duration: 1.2, type: "spring", stiffness: 60 }}
+        style={{
+          width: 500, // Fixed base size
+          height: 500, // Fixed base size
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          transformOrigin: 'top left',
+          transform: `scale(${scale})`, 
+          borderRadius: '24px',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
+        }}
       >
         {cardData.elements.map((el, idx) => (
           <motion.div
