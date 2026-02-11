@@ -6,7 +6,14 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { Copy, Check, ExternalLink, ArrowLeft, Heart } from "lucide-react";
+import {
+  Copy,
+  Check,
+  ExternalLink,
+  ArrowLeft,
+  Heart,
+  Download,
+} from "lucide-react";
 
 export default function SharePage() {
   const { t } = useLanguage();
@@ -14,23 +21,19 @@ export default function SharePage() {
   const cardId = params.id as string;
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("");
+  const [cardUrl, setCardUrl] = useState("");
 
   useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  const cardUrl = useMemo(() => {
-    if (!origin) return "";
-    return `${origin}/card/${cardId}`;
-  }, [origin, cardId]);
+    setCardUrl(`${window.location.origin}/card/${cardId}`);
+  }, [cardId]);
 
   useEffect(() => {
     if (!cardUrl) return;
     QRCode.toDataURL(cardUrl, {
-      width: 280,
+      width: 400,
       margin: 2,
       color: { dark: "#e8477e", light: "#ffffff" },
+      errorCorrectionLevel: "H",
     }).then(setQrDataUrl);
   }, [cardUrl]);
 
@@ -101,13 +104,60 @@ export default function SharePage() {
           initial={{ opacity: 0, y: 30, rotateX: -10 }}
           animate={{ opacity: 1, y: 0, rotateX: 0 }}
           transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            background: "rgba(255, 255, 255, 0.8)",
+            padding: "24px",
+            borderRadius: "24px",
+            boxShadow: "0 8px 32px rgba(232, 71, 126, 0.15)",
+          }}
         >
-          <div className="share-qr-wrapper">
+          <div
+            className="share-qr-wrapper"
+            style={{
+              padding: "16px",
+              background: "white",
+              borderRadius: "16px",
+              marginBottom: "16px",
+            }}
+          >
             {qrDataUrl && (
               <img src={qrDataUrl} alt="QR Code" className="share-qr-img" />
             )}
           </div>
-          <p className="share-qr-hint">{t("share.scanHint")}</p>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              width: "100%",
+            }}
+          >
+            <p className="share-qr-hint" style={{ marginBottom: 0 }}>
+              {t("share.scanHint")}
+            </p>
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = qrDataUrl;
+                link.download = "vday-card-qr.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+              className="share-action-btn"
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                marginTop: "8px",
+                background: "var(--primary)",
+                color: "white",
+                border: "none",
+              }}
+            >
+              <Download size={16} />
+              <span>Download QR</span>
+            </button>
+          </div>
         </motion.div>
 
         {/* Link section */}
