@@ -190,6 +190,9 @@ export default function CreatePage() {
   // Touch drag
   const handleTouchStart = useCallback(
     (e: React.TouchEvent, elementId: string) => {
+      // Prevent scrolling on mobile
+      // e.preventDefault(); // React's Partial<TouchEvent> might not support preventDefault depending on listener
+      // We rely on touch-action: none in CSS for the element
       const canvas = canvasRef.current;
       if (!canvas) return;
       const touch = e.touches[0];
@@ -209,7 +212,7 @@ export default function CreatePage() {
   useEffect(() => {
     if (!dragging) return;
     const move = (e: TouchEvent) => {
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       const canvas = canvasRef.current;
       if (!canvas) return;
       const touch = e.touches[0];
@@ -956,6 +959,7 @@ export default function CreatePage() {
                     zIndex: dragging === el.id ? 999 : el.zIndex || 2,
                     transform: `rotate(${el.rotation || 0}deg)`,
                     opacity: el.opacity ?? 1,
+                    touchAction: "none",
                   }}
                   onMouseDown={(e) => handleMouseDown(e, el.id)}
                   onTouchStart={(e) => handleTouchStart(e, el.id)}

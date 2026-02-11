@@ -99,9 +99,10 @@ export default function CardViewPage({
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: el.opacity ?? 1, scale: 1 }}
             transition={{
-              delay: 0.3 + idx * 0.12,
+              delay: 0.2 + idx * 0.08,
               type: "spring",
-              stiffness: 200,
+              stiffness: 260,
+              damping: 20,
             }}
           >
             {el.type === "sticker" && (
