@@ -913,41 +913,6 @@ export default function CreatePage() {
               className={`card-canvas card-theme-${theme} ${bgPattern !== "none" ? `bg-pattern-${bgPattern}` : ""}`}
               onClick={() => setSelectedElement(null)}
             >
-              {/* Main message overlay */}
-              {mainMessage && (
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "6%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    textAlign: "center",
-                    zIndex: 2000,
-                    maxWidth: "88%",
-                    width: "100%",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <p
-                    style={{
-                      fontFamily: getFontCss(mainMessageFont),
-                      fontSize: "1.3rem",
-                      fontWeight: 600,
-                      color: mainMessageColor,
-                      lineHeight: 1.5,
-                      wordBreak: "break-word",
-                      background: "rgba(255,255,255,0.72)",
-                      backdropFilter: "blur(4px)",
-                      padding: "10px 18px",
-                      borderRadius: "14px",
-                      border: `1px solid ${mainMessageColor}22`,
-                    }}
-                  >
-                    {mainMessage}
-                  </p>
-                </div>
-              )}
-
               {/* Elements */}
               {elements.map((el) => (
                 <div
@@ -1035,6 +1000,37 @@ export default function CreatePage() {
                 </div>
               ))}
             </div>
+
+            {/* Main message - Below card */}
+            {mainMessage && (
+              <div
+                style={{
+                  marginTop: "20px",
+                  textAlign: "center",
+                  width: "100%",
+                  zIndex: 10,
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: getFontCss(mainMessageFont),
+                    fontSize: "1.3rem",
+                    fontWeight: 600,
+                    color: mainMessageColor,
+                    lineHeight: 1.5,
+                    wordBreak: "break-word",
+                    background: "rgba(255,255,255,0.6)",
+                    backdropFilter: "blur(4px)",
+                    padding: "10px 18px",
+                    borderRadius: "14px",
+                    border: `1px solid ${mainMessageColor}22`,
+                    display: "inline-block",
+                  }}
+                >
+                  {mainMessage}
+                </p>
+              </div>
+            )}
           </motion.div>
 
           {/* Generate */}

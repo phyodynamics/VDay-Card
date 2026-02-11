@@ -142,44 +142,41 @@ export default function CardViewPage({
             )}
           </motion.div>
         ))}
-
-        {/* Main message overlay */}
-        {cardData.mainMessage && (
-          <motion.div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              textAlign: "center",
-              zIndex: 2000,
-              maxWidth: "88%",
-              width: "100%",
-            }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-          >
-            <p
-              style={{
-                fontFamily: getFontCss(cardData.mainMessageFont),
-                fontSize: "1.3rem",
-                fontWeight: 600,
-                color: cardData.mainMessageColor || "#e8477e",
-                lineHeight: 1.5,
-                wordBreak: "break-word",
-                background: "rgba(255,255,255,0.72)",
-                backdropFilter: "blur(4px)",
-                padding: "10px 18px",
-                borderRadius: "14px",
-                border: `1px solid ${cardData.mainMessageColor || "#e8477e"}22`,
-              }}
-            >
-              {cardData.mainMessage}
-            </p>
-          </motion.div>
-        )}
       </motion.div>
+
+      {/* Main message - Below card */}
+      {cardData.mainMessage && (
+        <motion.div
+          style={{
+            marginTop: "24px",
+            textAlign: "center",
+            maxWidth: "90%",
+            width: "100%",
+          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+        >
+          <p
+            style={{
+              fontFamily: getFontCss(cardData.mainMessageFont),
+              fontSize: "1.4rem",
+              fontWeight: 600,
+              color: cardData.mainMessageColor || "#e8477e",
+              lineHeight: 1.6,
+              wordBreak: "break-word",
+              background: "rgba(255,255,255,0.8)",
+              backdropFilter: "blur(8px)",
+              padding: "16px 24px",
+              borderRadius: "16px",
+              border: `1px solid ${cardData.mainMessageColor || "#e8477e"}33`,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            }}
+          >
+            {cardData.mainMessage}
+          </p>
+        </motion.div>
+      )}
 
       <motion.div
         className="card-viewer-footer"
