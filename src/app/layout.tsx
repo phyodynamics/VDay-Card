@@ -49,6 +49,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "https://i.imghippo.com/files/YVCs3671XZo.png",
+    apple: "/favicon.ico",
   },
 };
 

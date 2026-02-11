@@ -29,6 +29,7 @@ import {
   Loader2,
   Upload,
   RotateCw,
+  RotateCcw,
   Copy,
   Trash2,
   ChevronDown,
@@ -56,8 +57,8 @@ export default function CreatePage() {
   const [elements, setElements] = useState<CardElement[]>([]);
 
   // Undo/Redo history
-  const [history, setHistory] = useState<CardElement[][]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [history, setHistory] = useState<CardElement[][]>([[]]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   // Helper to push to history
   const pushToHistory = useCallback(
@@ -71,18 +72,7 @@ export default function CreatePage() {
     [historyIndex],
   );
 
-  // Initial history setup
-  useEffect(() => {
-    // Only set initial history if empty
-    setHistory((prev) => {
-      if (prev.length === 0) return [[]];
-      return prev;
-    });
-    setHistoryIndex((prev) => {
-      if (prev === -1) return 0;
-      return prev;
-    });
-  }, []);
+  // Initial history setup removed (handled by useState initialization)
 
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
