@@ -63,9 +63,14 @@ export default function OverlayGuide() {
   }, [currentStep, show]);
 
   useEffect(() => {
-    updateHighlight();
-    window.addEventListener("resize", updateHighlight);
-    return () => window.removeEventListener("resize", updateHighlight);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      updateHighlight();
+    };
+    
+    checkMobile(); // Initial check
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, [updateHighlight]);
 
   const handleNext = () => {
@@ -97,6 +102,9 @@ export default function OverlayGuide() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleFinish}
+            style={{
+               position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 9998
+            }}
           />
 
           {/* Highlight ring around target */}
@@ -106,10 +114,16 @@ export default function OverlayGuide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               style={{
+                position: 'fixed',
                 top: highlightRect.top - 6,
                 left: highlightRect.left - 6,
                 width: highlightRect.width + 12,
                 height: highlightRect.height + 12,
+                border: '2px solid white',
+                borderRadius: '8px',
+                boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)', // visual cutout effect approach if overlay didn't exist
+                zIndex: 9999,
+                pointerEvents: "none",
               }}
               layoutId="guide-highlight"
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -119,73 +133,48 @@ export default function OverlayGuide() {
           {/* Text Pointer */}
           <motion.div
             className="guide-pointer"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: isMobile ? 0 : -20, y: isMobile ? -20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            exit={{ opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
             key={currentStep}
             style={{
               position: "fixed",
-              // Responsive positioning logic would be better moved to a calculated state,
-              // but for now let's place it intelligently based on available space if possible.
-              // Mobile check:
-              top:
-                typeof window !== "undefined" && window.innerWidth < 768
-                  ? highlightRect
-                    ? highlightRect.bottom + 20
-                    : "50%"
-                  : highlightRect
-                    ? highlightRect.top + highlightRect.height / 2 - 20
-                    : "50%",
-              left:
-                typeof window !== "undefined" && window.innerWidth < 768
-                  ? "50%"
-                  : highlightRect
-                    ? highlightRect.right + 20
-                    : "50%",
-              transform:
-                typeof window !== "undefined" && window.innerWidth < 768
-                  ? "translateX(-50%)"
-                  : "none",
+              top: isMobile 
+                ? (highlightRect ? highlightRect.bottom + 20 : "50%")
+                : (highlightRect ? highlightRect.top + highlightRect.height / 2 - 20 : "50%"),
+              left: isMobile
+                ? "50%"
+                : (highlightRect ? highlightRect.right + 20 : "50%"),
+              transform: isMobile ? "translateX(-50%)" : "none",
               zIndex: 10000,
-              pointerEvents: "none", // Allow clicking through if needed, but we have overlay
+              pointerEvents: "none",
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: "center",
+              gap: "12px",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flexDirection:
-                  typeof window !== "undefined" && window.innerWidth < 768
-                    ? "column"
-                    : "row",
-              }}
-            >
-              <span
-                style={{
-                  color: "white",
-                  fontSize: "1.5rem",
-                  fontWeight: "bold",
-                  textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                  fontFamily: "monospace",
-                  transform:
-                    typeof window !== "undefined" && window.innerWidth < 768
-                      ? "rotate(90deg)"
-                      : "none",
-                  display: "inline-block",
-                }}
-              >
-                --- &gt;
-              </span>
-              <div
-                style={{
-                  background: "rgba(255, 255, 255, 0.95)",
-                  padding: "12px 20px",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              <div style={{ 
+                transform: isMobile ? "rotate(90deg)" : "none",
+                color: "white", 
+                fontSize: "2rem", 
+                fontWeight: "bold", 
+                textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                fontFamily: "monospace",
+                lineHeight: 1,
+              }}>
+                {isMobile ? "➜" : "➜"} {/* Using a standard arrow for clearer direction */}
+              </div>
+              <div 
+                style={{ 
+                  background: "white", 
+                  padding: "16px 20px", 
+                  borderRadius: "12px",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                   maxWidth: "280px",
                   pointerEvents: "auto",
+                  textAlign: isMobile ? "center" : "left"
                 }}
               >
                 <p
