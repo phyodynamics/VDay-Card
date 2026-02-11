@@ -100,155 +100,156 @@ export default function CardViewPage({
         and then scale it down using CSS transform to fit the screen. 
         This ensures 1:1 visual fidelity with the editor.
       */}
-      <div 
+      <div
         className="card-scaler-container"
         style={{
           width: 500 * scale,
           height: 500 * scale, // Preserving aspect ratio
-          position: 'relative',
-          margin: '0 auto',
+          position: "relative",
+          margin: "0 auto",
         }}
       >
-      <motion.div
-        className={`card-viewer-container ${themeClass} ${patternClass}`}
-        initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
-        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-        transition={{ duration: 1.2, type: "spring", stiffness: 60 }}
-        style={{
-          width: 500, // Fixed base size
-          height: 500, // Fixed base size
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          transformOrigin: 'top left',
-          transform: `scale(${scale})`, 
-          borderRadius: '24px',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-          overflow: 'hidden'
-        }}
-      >
-        {cardData.elements.map((el, idx) => (
-          <motion.div
-            key={el.id || idx}
-            style={{
-              position: "absolute",
-              left: `${el.x}%`,
-              top: `${el.y}%`,
-              zIndex: el.zIndex || 2,
-              transform: `rotate(${el.rotation || 0}deg)`,
-              opacity: el.opacity ?? 1,
-            }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: el.opacity ?? 1, scale: 1 }}
-            transition={{
-              delay: 0.2 + idx * 0.08,
-              type: "spring",
-              stiffness: 260,
-              damping: 20,
-            }}
-          >
-            {el.type === "sticker" && (
-              <div className="card-svg-element">
-                <StickerRenderer
-                  stickerId={el.content}
-                  size={el.fontSize || 48}
-                  color={el.stickerColor || "#e8477e"}
-                />
-              </div>
-            )}
-            {el.type === "text" && (
-              <div
-                style={{
-                  fontSize: `${el.fontSize || 22}px`,
-                  color: el.fontColor || "#e8477e",
-                  fontWeight: el.fontWeight || 600,
-                  fontStyle: el.fontStyle || "normal",
-                  fontFamily: getFontCss(el.fontFamily),
-                  textAlign:
-                    (el.textAlign as "left" | "center" | "right") || "center",
-                  whiteSpace: "nowrap",
-                  background: "rgba(255,255,255,0.45)",
-                  padding: "4px 10px",
-                  borderRadius: "8px",
-                }}
-              >
-                {el.content}
-              </div>
-            )}
-            {el.type === "image" && (
-              <img
-                src={el.content}
-                alt="Custom"
-                style={{
-                  maxWidth: 120,
-                  borderRadius:
-                    el.shape === "circle"
-                      ? "50%"
-                      : el.shape === "pill"
-                        ? "999px"
-                        : "8px",
-                  aspectRatio: el.shape === "circle" ? "1/1" : "auto",
-                  objectFit: "cover",
-                }}
-              />
-            )}
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Main message - Below card */}
-      {cardData.mainMessage && (
         <motion.div
+          className={`card-viewer-container ${themeClass} ${patternClass}`}
+          initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
+          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+          transition={{ duration: 1.2, type: "spring", stiffness: 60 }}
           style={{
-            marginTop: "24px",
-            textAlign: "center",
-            maxWidth: "90%",
-            width: "100%",
+            width: 500, // Fixed base size
+            height: 500, // Fixed base size
+            position: "absolute",
+            top: 0,
+            left: 0,
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+            borderRadius: "24px",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.1)",
+            overflow: "hidden",
           }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
         >
-          <p
-            style={{
-              fontFamily: getFontCss(cardData.mainMessageFont),
-              fontSize: "1.4rem",
-              fontWeight: 600,
-              color: cardData.mainMessageColor || "#e8477e",
-              lineHeight: 1.6,
-              wordBreak: "break-word",
-              background: "rgba(255,255,255,0.8)",
-              backdropFilter: "blur(8px)",
-              padding: "16px 24px",
-              borderRadius: "16px",
-              border: `1px solid ${cardData.mainMessageColor || "#e8477e"}33`,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-            }}
-          >
-            {cardData.mainMessage}
-          </p>
+          {cardData.elements.map((el, idx) => (
+            <motion.div
+              key={el.id || idx}
+              style={{
+                position: "absolute",
+                left: `${el.x}%`,
+                top: `${el.y}%`,
+                zIndex: el.zIndex || 2,
+                transform: `rotate(${el.rotation || 0}deg)`,
+                opacity: el.opacity ?? 1,
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: el.opacity ?? 1, scale: 1 }}
+              transition={{
+                delay: 0.2 + idx * 0.08,
+                type: "spring",
+                stiffness: 260,
+                damping: 20,
+              }}
+            >
+              {el.type === "sticker" && (
+                <div className="card-svg-element">
+                  <StickerRenderer
+                    stickerId={el.content}
+                    size={el.fontSize || 48}
+                    color={el.stickerColor || "#e8477e"}
+                  />
+                </div>
+              )}
+              {el.type === "text" && (
+                <div
+                  style={{
+                    fontSize: `${el.fontSize || 22}px`,
+                    color: el.fontColor || "#e8477e",
+                    fontWeight: el.fontWeight || 600,
+                    fontStyle: el.fontStyle || "normal",
+                    fontFamily: getFontCss(el.fontFamily),
+                    textAlign:
+                      (el.textAlign as "left" | "center" | "right") || "center",
+                    whiteSpace: "nowrap",
+                    background: "rgba(255,255,255,0.45)",
+                    padding: "4px 10px",
+                    borderRadius: "8px",
+                  }}
+                >
+                  {el.content}
+                </div>
+              )}
+              {el.type === "image" && (
+                <img
+                  src={el.content}
+                  alt="Custom"
+                  style={{
+                    maxWidth: 120,
+                    borderRadius:
+                      el.shape === "circle"
+                        ? "50%"
+                        : el.shape === "pill"
+                          ? "999px"
+                          : "8px",
+                    aspectRatio: el.shape === "circle" ? "1/1" : "auto",
+                    objectFit: "cover",
+                  }}
+                />
+              )}
+            </motion.div>
+          ))}
         </motion.div>
-      )}
 
-      <motion.div
-        className="card-viewer-footer"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-      >
-        <p>
-          {t("card.madeWith")}{" "}
-          <Heart size={14} fill="var(--primary)" color="var(--primary)" /> VDay
-          Card
-        </p>
-        <Link
-          href="/create"
-          className="hero-cta"
-          style={{ display: "inline-flex", marginTop: 16 }}
+        {/* Main message - Below card */}
+        {cardData.mainMessage && (
+          <motion.div
+            style={{
+              marginTop: "24px",
+              textAlign: "center",
+              maxWidth: "90%",
+              width: "100%",
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <p
+              style={{
+                fontFamily: getFontCss(cardData.mainMessageFont),
+                fontSize: "1.4rem",
+                fontWeight: 600,
+                color: cardData.mainMessageColor || "#e8477e",
+                lineHeight: 1.6,
+                wordBreak: "break-word",
+                background: "rgba(255,255,255,0.8)",
+                backdropFilter: "blur(8px)",
+                padding: "16px 24px",
+                borderRadius: "16px",
+                border: `1px solid ${cardData.mainMessageColor || "#e8477e"}33`,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              {cardData.mainMessage}
+            </p>
+          </motion.div>
+        )}
+
+        <motion.div
+          className="card-viewer-footer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
         >
-          {t("card.createOwn")}
-        </Link>
-      </motion.div>
+          <p>
+            {t("card.madeWith")}{" "}
+            <Heart size={14} fill="var(--primary)" color="var(--primary)" />{" "}
+            VDay Card
+          </p>
+          <Link
+            href="/create"
+            className="hero-cta"
+            style={{ display: "inline-flex", marginTop: 16 }}
+          >
+            {t("card.createOwn")}
+          </Link>
+        </motion.div>
+      </div>
     </div>
   );
 }
