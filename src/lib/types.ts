@@ -11,6 +11,7 @@ export interface CardElement {
   fontStyle?: string;
   textAlign?: string;
   stickerColor?: string;
+  shape?: string;
   width?: number;
   height?: number;
   rotation?: number;

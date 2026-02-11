@@ -855,6 +855,41 @@ export default function CreatePage() {
                   </>
                 )}
 
+                {/* Image controls */}
+                {selectedEl.type === "image" && (
+                  <div className="editor-row">
+                    <div className="editor-field" style={{ flex: 1 }}>
+                      <label>Shape</label>
+                      <div
+                        className="shape-options"
+                        style={{ display: "flex", gap: "8px" }}
+                      >
+                        {[
+                          { id: "rect", label: "Rect" },
+                          { id: "circle", label: "Circle" },
+                          { id: "pill", label: "Pill" },
+                        ].map((shape) => (
+                          <button
+                            key={shape.id}
+                            className={`style-btn ${(selectedEl.shape || "rect") === shape.id ? "style-btn-active" : ""}`}
+                            style={{
+                              width: "auto",
+                              padding: "0 12px",
+                              borderRadius: "6px",
+                              fontSize: "0.8rem",
+                            }}
+                            onClick={() =>
+                              updateElement(selectedEl.id, { shape: shape.id })
+                            }
+                          >
+                            {shape.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Common controls for ALL elements */}
                 <div className="editor-row">
                   <div className="editor-field" style={{ flex: 1 }}>
@@ -993,7 +1028,17 @@ export default function CreatePage() {
                       <img
                         src={el.content}
                         alt="Custom"
-                        style={{ maxWidth: 120, borderRadius: 8 }}
+                        style={{
+                          maxWidth: 120,
+                          borderRadius:
+                            el.shape === "circle"
+                              ? "50%"
+                              : el.shape === "pill"
+                                ? "999px"
+                                : "8px",
+                          aspectRatio: el.shape === "circle" ? "1/1" : "auto",
+                          objectFit: "cover",
+                        }}
                       />
                     </div>
                   )}

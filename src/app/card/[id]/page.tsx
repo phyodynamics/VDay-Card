@@ -137,7 +137,17 @@ export default function CardViewPage({
               <img
                 src={el.content}
                 alt="Custom"
-                style={{ maxWidth: 120, borderRadius: 8 }}
+                style={{
+                  maxWidth: 120,
+                  borderRadius:
+                    el.shape === "circle"
+                      ? "50%"
+                      : el.shape === "pill"
+                        ? "999px"
+                        : "8px",
+                  aspectRatio: el.shape === "circle" ? "1/1" : "auto",
+                  objectFit: "cover",
+                }}
               />
             )}
           </motion.div>
