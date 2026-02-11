@@ -136,10 +136,132 @@ export default function SharePage() {
               {t("share.scanHint")}
             </p>
             <button
-              onClick={() => {
+              onClick={async () => {
+                if (!qrDataUrl) return;
+
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                if (!ctx) return;
+
+                // Set dimensions
+                const width = 600;
+                const height = 800;
+                canvas.width = width;
+                canvas.height = height;
+
+                // 1. Background
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, "#fff5f8");
+                gradient.addColorStop(1, "#fff0f5");
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                // 2. Decorative elements
+                // Large circle
+                ctx.fillStyle = "rgba(232, 71, 126, 0.08)";
+                ctx.beginPath();
+                ctx.arc(0, 0, 300, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Small circle
+                ctx.fillStyle = "rgba(120, 120, 255, 0.05)";
+                ctx.beginPath();
+                ctx.arc(width, height, 250, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 3. Header Text
+                ctx.textAlign = "center";
+
+                // Main Title
+                ctx.fillStyle = "#e8477e"; // var(--primary)
+                // Use system font stack as backup
+                ctx.font = "bold 48px 'DM Serif Display', serif";
+                // Fallback if font not loaded on canvas context appropriately, though browser should handle it if loaded
+                ctx.fillText("Valentine's Day Card", width / 2, 130);
+
+                // Subtitle
+                ctx.fillStyle = "#666";
+                ctx.font = "24px 'Poppins', sans-serif";
+                ctx.fillText(t("share.scanHint"), width / 2, 180);
+
+                // 4. QR Code Container (White box with shadow)
+                const qrSize = 340;
+                const padding = 20;
+                const qrX = (width - (qrSize + padding * 2)) / 2;
+                const qrY = (height - (qrSize + padding * 2)) / 2 + 20;
+
+                ctx.save();
+                ctx.shadowColor = "rgba(232, 71, 126, 0.2)";
+                ctx.shadowBlur = 40;
+                ctx.shadowOffsetY = 20;
+
+                ctx.fillStyle = "white";
+                // Helper for round rect
+                const roundRect = (
+                  x: number,
+                  y: number,
+                  w: number,
+                  h: number,
+                  r: number,
+                ) => {
+                  ctx.beginPath();
+                  ctx.moveTo(x + r, y);
+                  ctx.lineTo(x + w - r, y);
+                  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                  ctx.lineTo(x + w, y + h - r);
+                  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                  ctx.lineTo(x + r, y + h);
+                  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                  ctx.lineTo(x, y + r);
+                  ctx.quadraticCurveTo(x, y, x + r, y);
+                  ctx.closePath();
+                  ctx.fill();
+                };
+
+                roundRect(
+                  qrX,
+                  qrY,
+                  qrSize + padding * 2,
+                  qrSize + padding * 2,
+                  32,
+                );
+                ctx.restore();
+
+                // 5. Draw QR Code Image
+                const qrImg = new Image();
+                qrImg.src = qrDataUrl;
+                // crossOrigin might be needed if base64? base64 is fine.
+                await new Promise<void>((resolve) => {
+                  qrImg.onload = () => resolve();
+                });
+
+                // Draw QR centered in white box
+                ctx.drawImage(
+                  qrImg,
+                  qrX + padding,
+                  qrY + padding,
+                  qrSize,
+                  qrSize,
+                );
+
+                // 6. Branding / Footer
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 32px 'DM Serif Display', serif";
+                ctx.fillText("VDay Card", width / 2, height - 100);
+
+                ctx.fillStyle = "#888";
+                ctx.font = "16px 'Poppins', sans-serif";
+                ctx.fillText(
+                  "Create your own at " + window.location.host,
+                  width / 2,
+                  height - 60,
+                );
+
+                // 7. Trigger Download
+                const dataUrl = canvas.toDataURL("image/png");
                 const link = document.createElement("a");
-                link.href = qrDataUrl;
-                link.download = "vday-card-qr.png";
+                link.href = dataUrl;
+                link.download = "vday-card-share.png";
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
