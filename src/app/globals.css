@@ -2500,31 +2500,3 @@ html {
   transform: translateY(-1px);
   box-shadow: var(--shadow-glow-lg);
 }
-
-/* ==================== RESPONSIVE CARD VIEWER ==================== */
-@media (max-width: 768px) {
-  .card-viewer-container {
-    /* Force scale down the card to fit screen width while maintaining aspect ratio */
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    /* Important: The card container is usually square or fixed aspect ratio in editor. 
-       We need to ensure it shrinks proportionally. */
-    height: auto !important;
-    max-width: 100vw;
-  }
-
-  /* Scale down elements inside based on container width */
-  /* Since elements use % for position, they should move correctly. 
-     But font-sizes and fixed px dimensions might be too large. 
-     We can use container queries or just rely on 'transform: scale()' if the container was fixed size. */
-
-  /* Better approach for strict WYSIWYG scaling: 
-     Make the viewer container a fixed reference size (e.g. 500px) and scale it down using CSS transform. */
-}
-
-/* Force the card viewer to behave like a scaled-down version of the desktop view */
-.card-viewer-container {
-  /* Ensure relative positioning context is strictly respected */
-  position: relative;
-  overflow: hidden;
-}
