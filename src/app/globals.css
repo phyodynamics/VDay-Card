@@ -752,7 +752,7 @@ body[data-lang="my"] .hero h1 {
 /* ==================== CARD EDITOR ==================== */
 .editor-page {
   padding-top: 80px;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .editor-layout {
@@ -1726,6 +1726,7 @@ body[data-lang="my"] .hero h1 {
   /* Editor */
   .editor-page {
     padding-top: 70px;
+    overscroll-behavior-y: none; /* Prevent bounce */
   }
 
   .editor-layout {
@@ -1739,6 +1740,19 @@ body[data-lang="my"] .hero h1 {
     max-height: none;
     border-radius: var(--radius-xl);
     padding: var(--space-md);
+    order: 2; /* Move sidebar below canvas */
+  }
+
+  .editor-canvas-wrapper {
+    order: 1; /* specific order to ensure canvas is first */
+  }
+
+  .card-canvas,
+  .canvas-container {
+    touch-action: none; /* Prevent browser scrolling when touching canvas */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   .sticker-grid {
