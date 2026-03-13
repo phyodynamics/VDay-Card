@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { CardData, THEMES, FONT_OPTIONS } from "@/lib/types";
 import StickerRenderer from "@/components/ValentineStickers";
@@ -134,21 +135,30 @@ export default function CardViewPage({
               </div>
             )}
             {el.type === "image" && (
-              <img
-                src={el.content}
-                alt="Custom"
+              <div
                 style={{
-                  maxWidth: 120,
+                  position: "relative",
+                  width: el.width || 120,
+                  height: el.width || 120,
                   borderRadius:
                     el.shape === "circle"
                       ? "50%"
                       : el.shape === "pill"
                         ? "999px"
                         : "8px",
-                  aspectRatio: el.shape === "circle" ? "1/1" : "auto",
-                  objectFit: "cover",
+                  overflow: "hidden",
                 }}
-              />
+              >
+                <Image
+                  src={el.content}
+                  alt="Custom"
+                  fill
+                  style={{
+                    objectFit: "cover",
+                    pointerEvents: "none",
+                  }}
+                />
+              </div>
             )}
           </motion.div>
         ))}
