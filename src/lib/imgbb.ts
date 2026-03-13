@@ -3,7 +3,7 @@ export async function uploadImage(
 ): Promise<{ permanent_url: string; direct_url: string }> {
   const formData = new FormData();
   formData.append("image", file);
-  formData.append("key", "39a517c054a1ce550b8ab0a429c210e0"); // ImgBB API key
+  formData.append("key", "9364b5bfecf234680daf17921cd37f38"); // ImgBB API key
 
   try {
     const response = await fetch("https://api.imgbb.com/1/upload", {
